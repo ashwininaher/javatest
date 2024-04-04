@@ -1,0 +1,293 @@
+Q1: Merge two arrays by satisfying given constraints
+Given two sorted arrays X[] and Y[] of size m and n each where m >= n and X[] has exactly n vacant cells,
+ merge elements of Y[] in their correct position in array X[], i.e., merge (X, Y) by keeping the sorted order.
+
+For example,
+
+Input: X[] = { 0, 2, 0, 3, 0, 5, 6, 0, 0 }
+Y[] = { 1, 8, 9, 10, 15 } The vacant cells in X[] is represented by 0 
+Output: X[] = { 1, 2, 3, 5, 6, 8, 9, 10, 15 }
+
+Solution:
+import java.util.Arrays;
+ 
+class Main
+{
+    // Function to merge X[0… m] and Y[0… n] into X[0… m+n+1]
+    private static void merge(int[] X, int[] Y, int m, int n)
+    {
+        // size of X[] is k+1
+        int k = m + n + 1;
+ 
+        // run if X[] or Y[] has elements left
+        while (m >= 0 && n >= 0)
+        {
+            // put the next greater element in the next free position in X[]
+          
+            if (X[m] > Y[n]) {
+                X[k--] = X[m--];
+            }
+            else {
+                X[k--] = Y[n--];
+            }
+        }
+ 
+        // copy the remaining elements of Y[] (if any) to X[]
+        while (n >= 0) {
+            X[k--] = Y[n--];
+        }
+ 
+        // fill `Y[]` with all zeros
+        Arrays.fill(Y, 0);
+    }
+ 
+    // The function moves non-empty elements in X[] in the
+    // beginning and then merge them with Y[]
+    public static void rearrange(int[] X, int[] Y)
+    {
+        // return if `X` is empty
+        if (X.length == 0) {
+            return;
+        }
+ 
+        // moves non-empty elements of X[] at the beginning
+        int k = 0;
+        for (int value: X)
+        {
+            if (value != 0) {
+                X[k++] = value;
+            }
+        }
+ 
+        // merge X[0…k-1] and Y[0… n-1] into X[0… m-1]
+        merge(X, Y, k - 1, Y.length - 1);
+    }
+ 
+    public static void main (String[] args)
+    {
+        // vacant cells in X[] is represented by 0
+        int[] X = { 0, 2, 0, 3, 0, 5, 6, 0, 0};
+        int[] Y = { 1, 8, 9, 10, 15 };
+ 
+        // merge Y[] into X[]
+        rearrange(X, Y);
+        System.out.println(Arrays.toString(X));
+    }
+}
+....................................................................................................................................................
+Q2:Find maximum sum path involving elements of given arrays
+Given two sorted arrays of integers, find a maximum sum path involving elements of both arrays whose sum is maximum. 
+We can start from either array, but we can switch between arrays only through its common elements.
+
+For example,
+
+Input: X = { 3, 6, 7, 8, 10, 12, 15, 18, 100 }
+Y = { 1, 2, 3, 5, 7, 9, 10, 11, 15, 16, 18, 25, 50 }  
+The maximum sum path is: 1 —> 2 —> 3 —> 6 —> 7 —> 9 —> 10 —> 12 —> 15 —> 16 —> 18 —> 100 
+The maximum sum is 199
+
+Solution:With Example...................................................................
+import java.util.ArrayList;
+
+public class MaximumSumPath {
+    public static void main(String[] args) {
+        int[] X = {3, 6, 7, 8, 10, 12, 15, 18, 100};
+        int[] Y = {1, 2, 3, 5, 7, 9, 10, 11, 15, 16, 18, 25, 50};
+
+        Result result = findMaxSumPath(X, Y);
+        System.out.println("The maximum sum path is: " + result.path);
+        System.out.println("The maximum sum is " + result.sum);
+    }
+
+    static class Result {
+        ArrayList<Integer> path;
+        int sum;
+
+        Result(ArrayList<Integer> path, int sum) {
+            this.path = path;
+            this.sum = sum;
+        }
+    }
+
+    public static Result findMaxSumPath(int[] X, int[] Y) {
+        int sumX = 0, sumY = 0, result = 0;
+        int i = 0, j = 0;
+        ArrayList<Integer> path = new ArrayList<>();
+
+        while (i < X.length && j < Y.length) {
+            if (X[i] < Y[j]) {
+                sumX += X[i];
+                path.add(X[i++]);
+            } else if (X[i] > Y[j]) {
+                sumY += Y[j];
+                path.add(Y[j++]);
+            } else {
+                result += Math.max(sumX, sumY) + X[i];
+                path.add(X[i]);
+                sumX = 0;
+                sumY = 0;
+                i++;
+                j++;
+            }
+        }
+
+        while (i < X.length) {
+            sumX += X[i];
+            path.add(X[i++]);
+        }
+
+        while (j < Y.length) {
+            sumY += Y[j];
+            path.add(Y[j++]);
+        }
+
+        result += Math.max(sumX, sumY);
+
+        return new Result(path, result);
+    }
+}
+
+//With User Input.........................................................................................
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class MaximumSumPath {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Enter the size of the first array: ");
+        int sizeX = scanner.nextInt();
+        int[] X = new int[sizeX];
+        System.out.println("Enter elements of the first array in sorted order: ");
+        for (int i = 0; i < sizeX; i++) {
+            X[i] = scanner.nextInt();
+        }
+
+        System.out.println("Enter the size of the second array: ");
+        int sizeY = scanner.nextInt();
+        int[] Y = new int[sizeY];
+        System.out.println("Enter elements of the second array in sorted order: ");
+        for (int i = 0; i < sizeY; i++) {
+            Y[i] = scanner.nextInt();
+        }
+
+        Result result = findMaxSumPath(X, Y);
+        System.out.println("The maximum sum path is: " + result.path);
+        System.out.println("The maximum sum is " + result.sum);
+
+        scanner.close();
+    }
+
+    static class Result {
+        ArrayList<Integer> path;
+        int sum;
+
+        Result(ArrayList<Integer> path, int sum) {
+            this.path = path;
+            this.sum = sum;
+        }
+    }
+
+    public static Result findMaxSumPath(int[] X, int[] Y) {
+        int sumX = 0, sumY = 0, result = 0;
+        int i = 0, j = 0;
+        ArrayList<Integer> path = new ArrayList<>();
+
+        while (i < X.length && j < Y.length) {
+            if (X[i] < Y[j]) {
+                sumX += X[i];
+                path.add(X[i++]);
+            } else if (X[i] > Y[j]) {
+                sumY += Y[j];
+                path.add(Y[j++]);
+            } else {
+                result += Math.max(sumX, sumY) + X[i];
+                path.add(X[i]);
+                sumX = 0;
+                sumY = 0;
+                i++;
+                j++;
+            }
+        }
+
+        while (i < X.length) {
+            sumX += X[i];
+            path.add(X[i++]);
+        }
+
+        while (j < Y.length) {
+            sumY += Y[j];
+            path.add(Y[j++]);
+        }
+
+        result += Math.max(sumX, sumY);
+
+        return new Result(path, result);
+    }
+}
+....................................................................................................................................................
+
+
+Q3:Write a Java Program to count the number of words in a string using HashMap.
+
+Solution:
+import java.util.HashMap;
+
+public class WordCount {
+    public static void main(String[] args) {
+        String sentence = "The Winsoft Technologies is the Software Company in Pune";
+        HashMap<String, Integer> wordCountMap = countWords(sentence);
+        
+        System.out.println("Word count:");
+        for (String word : wordCountMap.keySet()) {
+            System.out.println(word + ": " + wordCountMap.get(word));
+        }
+    }
+
+    public static HashMap<String, Integer> countWords(String sentence) {
+        HashMap<String, Integer> wordCountMap = new HashMap<>();
+        String[] words = sentence.split("\\s+");
+        for (String word : words) {
+            word = word.replaceAll("[^a-zA-Z]", "").toLowerCase();
+            if (!word.isEmpty()) {
+                if (wordCountMap.containsKey(word)) {
+                    wordCountMap.put(word, wordCountMap.get(word) + 1);
+                } else {
+                    wordCountMap.put(word, 1);
+                }
+            }
+        }
+        return wordCountMap;
+    }
+}
+
+....................................................................................................................................................
+Q4:Write a Java Program to find the duplicate characters in a string.
+
+Solution:
+
+import java.util.HashMap;
+
+public class DuplicateCharacters {
+    public static void main(String[] args) {
+        String str = "I Am Ashwini Aher from Pune and I am Pursuing Last Semister in JSPM from Tathawade";
+        HashMap<Character, Integer> charCountMap = new HashMap<>();
+        
+        for (char c : str.toCharArray()) {
+            if (charCountMap.containsKey(c)) {
+                charCountMap.put(c, charCountMap.get(c) + 1);
+            } else {
+                charCountMap.put(c, 1);
+            }
+        }
+        
+        System.out.println("Duplicate characters in the string:");
+        for (char c : charCountMap.keySet()) {
+            if (charCountMap.get(c) > 1 && c != ' ') {
+                System.out.println(c + " - " + charCountMap.get(c) + " times");
+            }
+        }
+    }
+}
+
+
